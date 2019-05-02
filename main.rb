@@ -1,10 +1,13 @@
 require_relative "Arista"
+require_relative "Grafo"
 require 'matrix'
 
 #variable global (Contiene cantidad de vertices)
 $vertices
 #Variable global (Lista de aristas)
 $aristas=[]
+#Variable global (Contiene los vertices y aristas)
+$grafo
 
 def textoMenu
     #Esta función sólo mostrará las opciones del menú principal
@@ -66,6 +69,8 @@ def ingresarGrafo
             puts "Peso: #{arista.Peso}"
             puts "----"
         end
+
+        $grafo = Grafo.new($vertices, $aristas)
     end
 end
 
@@ -133,8 +138,8 @@ $ArrayM=[]
 def EncVertice(comparar)
     numeros=[]
     cont=0
-    while(cont<$aristas.length())
-        vertice=$aristas[cont]
+    while(cont<$grafo.aristas.length())
+        vertice=$grafo.aristas[cont]
         if(comparar==vertice.VerticeI)
             numeros.push(vertice.VerticeF)
         elsif(comparar==vertice.VerticeF)
@@ -166,8 +171,8 @@ def matriz (numero)
     $Matriz= Matrix[*$ArrayM]                  
 end
 
-
 ###############################
+
 
 main
 
