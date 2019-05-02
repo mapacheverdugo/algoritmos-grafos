@@ -1,8 +1,8 @@
 class Arista
-    def initialize(verticeI, verticeF, peso)
-        @VerticeI=verticeI
-        @VerticeF=verticeF
-        @Peso=peso
+    def initialize(verticeInicio, verticeFin, peso)
+        @verticeInicio=verticeInicio
+        @verticeFin=verticeFin
+        @peso=peso
     end
-    attr_reader :VerticeI, :VerticeF, :Peso
+    attr_reader :verticeInicio, :verticeFin, :peso
 end

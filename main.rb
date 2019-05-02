@@ -1,23 +1,34 @@
 require_relative "Arista"
 require_relative "Grafo"
-require 'matrix'
+require_relative "Vertice"
 
-#variable global (Contiene cantidad de vertices)
-$vertices
-#Variable global (Lista de aristas)
-$aristas=[]
-#Variable global (Contiene los vertices y aristas)
+require 'matrix'
+require 'io/console'
+
+class Matrix
+    def []=(i, j, x)
+      @rows[i][j] = x
+    end
+
+    def pretty_print
+        arr = @rows
+        width = arr.flatten.max.to_s.size + 2
+        puts arr.map { |a| a.map { |i| i.to_s.rjust(width) }.join }
+    end
+end
+
+#Variable global (Contiene los numeroVertices y aristas)
 $grafo
 
 def textoMenu
     #Esta función sólo mostrará las opciones del menú principal
     puts "Menú principal"
-    puts "1) Configurar grafo"
-    puts "2) Mostrar matriz de adyacencia"
-    puts "3) Verificar si un grafo es conexo"
-    puts "4) Cantidad de caminos entre vértices"
-    puts "5) Dijkstra"
-    puts "0) Salir\n\n"
+    puts "(1) Configurar grafo"
+    puts "(2) Mostrar matriz de adyacencia"
+    puts "(3) ¿El grafo es conexo?"
+    puts "(4) Matriz de caminos de largo n"
+    puts "(5) Camino mínimo con Dijkstra"
+    puts "(0) Salir\n\n"
 end
 
 def limpiar
@@ -29,83 +40,119 @@ def limpiar
 end
 
 def ingresarGrafo
-    puts "Ingrese el número de vertices: "
-    $vertices = gets.to_i
+    aristas = []
+    vertices = []
+    esDirigido = true
 
-    if $vertices > 26 then
-        puts "Plz no"
-    else
-        seguir = true
-        
+    puts "(1) Grafo dirigido"
+    puts "(2) Grafo no dirigido"
+    print "\nIngrese el tipo de grafo: "
+    valorDirigido = gets.to_i
 
-        while seguir do
-            
-            $vertices.times do |n|
-                etiqueta = (97 + n).chr
-                puts "(#{n + 1}) Vertice " + etiqueta;
-            end
-            puts "(0) Dejar de ingresar aristas"
-
-            puts "Ingrese el vertice de inicio"
-            inicio = gets.to_i
-            
-            if inicio == 0 then
-                seguir = false
-            else 
-                puts "Ingrese el vertice de termino"
-                fin = gets.to_i
-
-                puts "Ingrese el peso de la arista"
-                peso = gets.to_i
-                arista = Arista.new(inicio, fin, peso)
-                $aristas.push(arista)
-            end
-        end
-
-        for arista in $aristas
-            puts "----"
-            puts "Inicio: #{arista.VerticeI}"
-            puts "Fin: #{arista.VerticeF}"
-            puts "Peso: #{arista.Peso}"
-            puts "----"
-        end
-
-        $grafo = Grafo.new($vertices, $aristas)
+    if (valorDirigido == 2)
+        esDirigido = false
     end
+
+    print "\nIngrese el número de vertices: "
+    numeroVertices = gets.to_i
+
+    seguir = true
+
+    numeroVertices.times do |n|
+        if (65 + n <= 90)
+            etiqueta = (65 + n).chr
+        else
+            etiqueta = ""
+            ((65 + n) / 26).times do |n|
+                etiqueta +=  ((65 + n) / 26).chr
+            end
+        end
+        
+        vertices.push(Vertice.new(n + 1, etiqueta))
+    end
+        
+    while seguir do
+        print "\n"
+        for vertice in vertices
+            puts "(#{vertice.valor}) Vertice " + vertice.etiqueta
+        end
+
+        puts "(0) Dejar de ingresar aristas"
+
+        print "\nIngrese el vertice de inicio: "
+        inicio = gets.to_i
+        
+        if inicio == 0 then
+            seguir = false
+        else 
+            print "\nIngrese el vertice de termino: "
+            fin = gets.to_i
+
+            print "\nIngrese el peso de la arista: "
+            peso = gets.to_i
+            arista = Arista.new(vertices[inicio - 1], vertices[fin - 1], peso)
+            aristas.push(arista)
+        end
+    end
+
+    $grafo = Grafo.new(vertices, aristas, esDirigido)
 end
 
 def menu
     salir = false
     opcion = nil
 
-    while salir!=true do
+    while salir != true do
         #limpiar #Esta función sirve para "limpiar" la consola
+        limpiar
         textoMenu
         opcion = gets
 
+        limpiar
+
         case opcion.to_i
             when 1
-                
+                puts "INGRESANDO UN GRAFO"
+                puts ""
                 ingresarGrafo
             when 2
-
-                matriz($vertices)
-                puts"Matriz de Adyacencia\n\n"
-                p $Matriz
-                p $Matriz**2
-                puts"\n"
-                #Aquí va la función de la matriz de adyacencia
+                puts "MATRIZ DE ADYACENCIA"
+                puts ""
+                $grafo.matrizAdyacencia.pretty_print
+                print "\nPresiona cualquiera tecla para continuar..."                                                                                                    
+                STDIN.getch 
             when 3
-                puts "Esta es la opción 3\n\n"
-                #Aquí va la función del grafo conexo
+                puts "¿EL GRAFO ES CONEXO?"
+                puts ""
+                if ($grafo.esConexo?)
+                    puts "El grafo es conexo"
+                else
+                    puts "El grafo no es conexo"
+                end
+                print "\nPresiona cualquiera tecla para continuar..."                                                                                                    
+                STDIN.getch 
             when 4
-                puts "Esta es la opción 4\n\n"
-                #Aquí va la función de cantidad de caminos
+                puts "MATRIZ DE CAMINOS DE LARGO N"
+                puts ""
+                print "\nDefina el largo de los caminos: "
+                largo = gets.to_i
+                $grafo.matrizCaminos(largo).pretty_print
+                print "\nPresiona cualquiera tecla para continuar..."                                                                                                    
+                STDIN.getch 
             when 5
-                puts "Esta es la opción 5\n\n"
-                #Aquí va la función del Dijkstra
+                puts "CAMINO MÍNIMO CON DIJKSTRA"
+                puts ""
+
+                for vertice in $grafo.vertices
+                    puts "(#{vertice.valor}) Vertice " + vertice.etiqueta
+                end
+                print "\nEscoja un vertice de origen: "
+                vertice = gets.to_i
+                $grafo.caminosMinimos(Vertice.new(vertice, (64 + vertice).chr))
+
+                print "\nPresiona cualquiera tecla para continuar..."                                                                                                    
+                STDIN.getch 
             when 0
-                puts "El programa finalizará"
                 salir = true
             else
                 puts "La opción no es válida\n\n"
@@ -119,60 +166,6 @@ def main
     puts "- Felipe Flores Vivanco\n- Andrés Mella\n- Jorge Verdugo Chacón\n- Javiera Vergara Navarro\n\n"
     menu
 end
-
-###
-# Aquí finaliza la presentación y el menú
-###
-
-
-
-######################
-# Matriz de Adyasencia
-######################
-
-#Valor Global que contiene la Matriz de adyacencia
-$Matriz
-$ArrayM=[]
-
-#Crea una lista con las aristas igual al numero comparado
-def EncVertice(comparar)
-    numeros=[]
-    cont=0
-    while(cont<$grafo.aristas.length())
-        vertice=$grafo.aristas[cont]
-        if(comparar==vertice.VerticeI)
-            numeros.push(vertice.VerticeF)
-        elsif(comparar==vertice.VerticeF)
-            numeros.push(vertice.VerticeI)
-        end
-        cont=cont+1
-    end
-    numeros.sort()
-    return numeros
-end
-
-#Crea la matriz al comparar los datos obtenidos de la lista creada por la funcion anterior
-def matriz (numero)
-    $ArrayM=[]
-    for i in (0..numero-1)
-        $Fila=[]
-        $Comp=EncVertice(i+1)
-        cont=0
-        for j in (0..numero-1)
-            if(j+1==$Comp[cont])
-                $Fila.push(1)
-                cont=cont+1
-            else
-                $Fila.push(0)
-            end
-        end
-        $ArrayM.push($Fila)
-    end    
-    $Matriz= Matrix[*$ArrayM]                  
-end
-
-###############################
-
 
 main
 
