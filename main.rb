@@ -124,7 +124,7 @@ def menu
             when 3
                 puts "¿EL GRAFO ES CONEXO?"
                 puts ""
-                if ($grafo.esConexo?)
+                if ($grafo.conexo?)
                     puts "El grafo es conexo"
                 else
                     puts "El grafo no es conexo"

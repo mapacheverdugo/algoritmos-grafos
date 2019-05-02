@@ -107,32 +107,21 @@ class Grafo
         return matriz
     end
 
-    def esConexo?
-        for verticeI in @vertices
-            for verticeF in @vertices
-                if (estaConectado(verticeI, verticeF) == false)
-                    return false
+    def conexo?
+        vertice = @vertices[0].valor
+        visitados = []
+        visitados.push(vertice)
+
+        for visitado in visitados
+            adyacentes = verticesAdyacentes(Vertice.new(visitado, (64 + visitado).chr))
+            for adyacente in adyacentes
+                if (!visitados.include?(adyacente))
+                    visitados.push(adyacente)
                 end
             end
         end
-        return true
-    end
 
-    def estaConectado(inicio, fin)
-        matriz = matrizAdyacencia.to_a
-        camino = [inicio]
-        
-        loop do
-            actual = camino.pop
-            return false if actual == nil
-            return true if actual.valor == fin.valor
-        
-            hijo = (0..matriz.length - 1).to_a.select do |i| 
-                matriz[actual.valor][i] == 1
-            end
-        
-            camino = camino + hijo
-        end
+        return visitados.length == @vertices.length
     end
 
     private
