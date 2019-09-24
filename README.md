@@ -15,6 +15,10 @@ mediante consola, ejecute el comando "ruby main.rb" sin las comillas y
 procedera. En caso de no reconocer el comando "ruby" hay instrucciones mas abajo.
 
 
+
+
+
+
 En caso de que no se reconosca el comando "ruby" seguir las siguientes instrucciones:
 
 1.Revise que la instalacion de ruby en su equipo fuese exitosa.
